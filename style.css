@@ -22,3 +22,19 @@ button:hover {
   background-color: #3730a3;
   transform: translateY(-2px) scale(1.03);
 }
+#modeSelect {
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  color: #333;
+  margin: 10px 0;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+#modeSelect:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 5px rgba(0, 91, 187, 0.5);
+}

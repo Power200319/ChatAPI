@@ -2,16 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="manifest" href="manifest.json" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Voice Translator (EN⇄KM⇄ZH)</title>
     <link rel="stylesheet" href="style.css" />
-    <title>Voice Translator (EN → KM)</title>
   </head>
   <body>
-    <h1>Voice Translator (EN → ខ្មែរ)</h1>
+    <h1>Voice Translator (EN ⇄ ខ្មែរ ⇄ 中文)</h1>
     <button id="startBtn">🎙️ Start Listening</button>
-    <p><strong>You said (English):</strong> <span id="englishText"></span></p>
-    <p><strong>Translated (Khmer):</strong> <span id="khmerText"></span></p>
+    <p><strong>You said:</strong> <span id="sourceText"></span></p>
+    <p><strong>Translated:</strong> <span id="targetText"></span></p>
+
+    <label for="modeSelect">Translation Mode:</label>
+    <select id="modeSelect">
+      <option value="en-km">English ⇄ Khmer</option>
+      <option value="km-en">Khmer ⇨ English</option>
+      <option value="zh-km">Chinese ⇨ Khmer</option>
+      <option value="km-zh">Khmer ⇄ Chinese</option></select
+    ><br />
+    <button id="resetBtn">🔄 Reset</button>
+
+    <div>
+      <h3>🎧 Source:</h3>
+      <div id="sourceText"></div>
+      <h3>🌐 Translation:</h3>
+      <div id="targetText"></div>
+    </div>
 
     <script src="script.js"></script>
   </body>
