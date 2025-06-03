@@ -12,14 +12,12 @@ let isSpeaking = false;
 let controller = null;
 let isRunning = false;
 
-// Setup speech recognition
 if ("webkitSpeechRecognition" in window) {
   recognition = new webkitSpeechRecognition();
   recognition.interimResults = false;
   recognition.continuous = true;
 }
 
-// Load voices
 function loadVoices() {
   return new Promise((resolve) => {
     const voices = window.speechSynthesis.getVoices();
@@ -33,21 +31,20 @@ function loadVoices() {
   });
 }
 
-// Speak without interrupting previous voice
 function speak(text, lang) {
+  if (isSpeaking) return; // prevent overlapping speech
+
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = lang;
+  utterance.rate = 1.0; // speaking speed: normal
 
   if (lang === "km-KH" && khmerVoice) utterance.voice = khmerVoice;
   if (lang.startsWith("zh") && chineseVoice) utterance.voice = chineseVoice;
 
-  utterance.rate = 1.25; // faster speech
   isSpeaking = true;
-
   utterance.onend = () => {
     isSpeaking = false;
   };
-
   window.speechSynthesis.speak(utterance);
 }
 
@@ -57,7 +54,6 @@ async function initVoiceSupport() {
   chineseVoice = voices.find((v) => v.lang.startsWith("zh"));
 }
 
-// Language pair configuration
 function getLangPair() {
   switch (currentMode) {
     case "en-km":
@@ -84,7 +80,6 @@ function updateRecognitionLang() {
   }
 }
 
-// Setup event listeners
 if (recognition) {
   startBtn.onclick = () => {
     updateRecognitionLang();
@@ -103,11 +98,11 @@ if (recognition) {
     }
     sourceText.textContent = "";
     targetText.textContent = "";
-    window.speechSynthesis.cancel(); // stop any current speech
+    window.speechSynthesis.cancel();
   };
 
   recognition.onend = () => {
-    if (isRunning) recognition.start(); // auto restart
+    if (isRunning) recognition.start(); // keep listening
   };
 
   recognition.onresult = (event) => {
@@ -126,7 +121,7 @@ if (recognition) {
       .then((data) => {
         const translated = data[0][0][0];
         targetText.textContent = translated;
-        setTimeout(() => speak(translated, speakLang), 50); // small delay
+        speak(translated, speakLang);
       })
       .catch((err) => {
         if (err.name !== "AbortError") console.error("Translation error:", err);
@@ -138,7 +133,7 @@ window.onload = () => {
   initVoiceSupport();
   updateRecognitionLang();
 
-  // Preload voice
+  // Preload a dummy translation to speed up the first real call
   fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=km&dt=t&q=hello")
     .then((res) => res.json())
     .catch(() => {});
