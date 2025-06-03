@@ -1,5 +1,6 @@
 body {
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: "Noto Sans Khmer", "Khmer OS", "Hanuman", "Segoe UI", Arial,
+    sans-serif;
   text-align: center;
   padding: 40px;
   background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
