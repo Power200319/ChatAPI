@@ -1,33 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Voice Translator (EN⇄KM⇄ZH)</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <h1>Voice Translator (EN ⇄ ខ្មែរ ⇄ 中文)</h1>
-    <button id="startBtn">🎙️ Start Listening</button>
-    <p><strong>You said:</strong> <span id="sourceText"></span></p>
-    <p><strong>Translated:</strong> <span id="targetText"></span></p>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Realtime Voice Translator PWA</title>
+  <link rel="manifest" href="manifest.json" />
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>🎙️ Realtime Voice Translator</h2>
 
-    <label for="modeSelect">Translation Mode:</label>
     <select id="modeSelect">
-      <option value="en-km">English ⇄ Khmer</option>
-      <option value="km-en">Khmer ⇨ English</option>
-      <option value="zh-km">Chinese ⇨ Khmer</option>
-      <option value="km-zh">Khmer ⇄ Chinese</option></select
-    ><br />
-    <button id="resetBtn">🔄 Reset</button>
+      <option value="en-km">English → Khmer</option>
+      <option value="km-en">Khmer → English</option>
+      <!-- <option value="km-zh">Khmer → Chinese</option>
+      <option value="zh-km">Chinese → Khmer</option> -->
+    </select>
 
-    <div>
-      <h3>🎧 Source:</h3>
-      <div id="sourceText"></div>
-      <h3>🌐 Translation:</h3>
-      <div id="targetText"></div>
-    </div>
+    <div class="text-label">Input Text:</div>
+    <div id="sourceText" class="text-box"></div>
 
-    <script src="script.js"></script>
-  </body>
+    <div class="text-label">Translated Text:</div>
+    <div id="targetText" class="text-box"></div>
+
+    <button id="startBtn">🎙️ Start Listening</button>
+    <button id="stopBtn" disabled>⏹️ Stop Listening</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
 </html>

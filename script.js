@@ -1,26 +1,27 @@
 const sourceText = document.getElementById("sourceText");
 const targetText = document.getElementById("targetText");
 const startBtn = document.getElementById("startBtn");
-const resetBtn = document.getElementById("resetBtn");
+const stopBtn = document.getElementById("stopBtn");
 const modeSelect = document.getElementById("modeSelect");
 
 let recognition;
-let currentMode = "en-km";
-let khmerVoice = null;
-let chineseVoice = null;
-let isSpeaking = false;
-let controller = null;
 let isRunning = false;
+let khmerVoice = null;
+let englishVoice = null;
 
-if ("webkitSpeechRecognition" in window) {
+if (!('webkitSpeechRecognition' in window)) {
+  alert("Your browser does not support Speech Recognition API. Please use Chrome.");
+} else {
   recognition = new webkitSpeechRecognition();
-  recognition.interimResults = false;
-  recognition.continuous = true;
 }
+
+recognition.continuous = true;
+recognition.interimResults = true;
+recognition.lang = "en-US";
 
 function loadVoices() {
   return new Promise((resolve) => {
-    const voices = window.speechSynthesis.getVoices();
+    let voices = window.speechSynthesis.getVoices();
     if (voices.length) {
       resolve(voices);
     } else {
@@ -31,110 +32,118 @@ function loadVoices() {
   });
 }
 
-function speak(text, lang) {
-  if (isSpeaking) return; // prevent overlapping speech
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = lang;
-  utterance.rate = 1.0; // speaking speed: normal
-
-  if (lang === "km-KH" && khmerVoice) utterance.voice = khmerVoice;
-  if (lang.startsWith("zh") && chineseVoice) utterance.voice = chineseVoice;
-
-  isSpeaking = true;
-  utterance.onend = () => {
-    isSpeaking = false;
-  };
-  window.speechSynthesis.speak(utterance);
-}
-
-async function initVoiceSupport() {
+async function initVoices() {
   const voices = await loadVoices();
-  khmerVoice = voices.find((v) => v.lang === "km-KH");
-  chineseVoice = voices.find((v) => v.lang.startsWith("zh"));
+  khmerVoice = voices.find(v => v.lang === "km-KH") || null;
+  englishVoice = voices.find(v => v.lang.startsWith("en")) || null;
 }
 
 function getLangPair() {
-  switch (currentMode) {
-    case "en-km":
-      return { source: "en", target: "km", recog: "en-US", speak: "km-KH" };
-    case "km-en":
-      return { source: "km", target: "en", recog: "km-KH", speak: "en-US" };
-    case "km-zh":
-      return { source: "km", target: "zh", recog: "km-KH", speak: "zh-CN" };
-    case "zh-km":
-      return { source: "zh", target: "km", recog: "zh-CN", speak: "km-KH" };
-    default:
-      return { source: "en", target: "km", recog: "en-US", speak: "km-KH" };
+  switch (modeSelect.value) {
+    case "en-km": return { recog: "en-US", source: "en", target: "km", speakLang: "km-KH" };
+    case "km-en": return { recog: "km-KH", source: "km", target: "en", speakLang: "en-US" };
+    default: return { recog: "en-US", source: "en", target: "km", speakLang: "km-KH" };
   }
 }
 
-modeSelect.onchange = () => {
-  currentMode = modeSelect.value;
-  updateRecognitionLang();
-};
-
-function updateRecognitionLang() {
-  if (recognition) {
-    recognition.lang = getLangPair().recog;
-  }
-}
-
-if (recognition) {
-  startBtn.onclick = () => {
-    updateRecognitionLang();
-    if (!isRunning) {
-      recognition.start();
-      isRunning = true;
-      startBtn.textContent = "🎙️ Listening...";
-    }
-  };
-
-  resetBtn.onclick = () => {
-    if (recognition && isRunning) {
-      recognition.stop();
-      isRunning = false;
-      startBtn.textContent = "🎙️ Start Listening";
-    }
-    sourceText.textContent = "";
-    targetText.textContent = "";
+function speak(text, lang) {
+  if (window.speechSynthesis.speaking) {
     window.speechSynthesis.cancel();
-  };
+  }
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = lang;
+  if (lang === "km-KH" && khmerVoice) utterance.voice = khmerVoice;
+  if (lang.startsWith("en") && englishVoice) utterance.voice = englishVoice;
+  utterance.rate = 1; // normal speed
+  window.speechSynthesis.speak(utterance);
+}
 
-  recognition.onend = () => {
-    if (isRunning) recognition.start(); // keep listening
-  };
-
-  recognition.onresult = (event) => {
-    const transcript = event.results[event.results.length - 1][0].transcript.trim();
-    sourceText.textContent = transcript;
-
-    const { source, target, speak: speakLang } = getLangPair();
-
-    if (controller) controller.abort();
-    controller = new AbortController();
-
-    fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(transcript)}`, {
-      signal: controller.signal,
-    })
-      .then((res) => res.json())
-      .then((data) => {
+let debounceTimer;
+function translateAndSpeak(text) {
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    const { source, target, speakLang } = getLangPair();
+    fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(text)}`)
+      .then(res => res.json())
+      .then(data => {
         const translated = data[0][0][0];
         targetText.textContent = translated;
         speak(translated, speakLang);
       })
-      .catch((err) => {
-        if (err.name !== "AbortError") console.error("Translation error:", err);
-      });
-  };
+      .catch(console.error);
+  }, 300);
 }
 
-window.onload = () => {
-  initVoiceSupport();
-  updateRecognitionLang();
+recognition.onresult = (event) => {
+  let interimTranscript = "";
+  let finalTranscript = "";
 
-  // Preload a dummy translation to speed up the first real call
-  fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=km&dt=t&q=hello")
-    .then((res) => res.json())
-    .catch(() => {});
+  for (let i = event.resultIndex; i < event.results.length; i++) {
+    if (event.results[i].isFinal) {
+      finalTranscript += event.results[i][0].transcript;
+    } else {
+      interimTranscript += event.results[i][0].transcript;
+    }
+  }
+
+  sourceText.textContent = interimTranscript || finalTranscript;
+
+  if (finalTranscript) {
+    translateAndSpeak(finalTranscript);
+  }
+};
+
+recognition.onerror = (event) => {
+  console.error("Speech recognition error", event.error);
+};
+
+recognition.onend = () => {
+  if (isRunning) {
+    recognition.start();
+  }
+};
+
+startBtn.onclick = () => {
+  if (!isRunning) {
+    const { recog } = getLangPair();
+    recognition.lang = recog;
+    recognition.start();
+    isRunning = true;
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+  }
+};
+
+stopBtn.onclick = () => {
+  if (isRunning) {
+    recognition.stop();
+    isRunning = false;
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    window.speechSynthesis.cancel();
+    sourceText.textContent = "";
+    targetText.textContent = "";
+  }
+};
+
+modeSelect.onchange = () => {
+  if (isRunning) {
+    recognition.stop();
+    isRunning = false;
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    sourceText.textContent = "";
+    targetText.textContent = "";
+    window.speechSynthesis.cancel();
+  }
+};
+
+window.onload = () => {
+  initVoices();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('Service Worker Registered'))
+      .catch(console.error);
+  }
 };

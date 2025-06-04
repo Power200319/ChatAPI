@@ -1,41 +1,95 @@
-body {
-  font-family: "Noto Sans Khmer", "Khmer OS", "Hanuman", "Segoe UI", Arial,
-    sans-serif;
-  text-align: center;
-  padding: 40px;
-  background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
-  color: #22223b;
-}
+* {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-button {
-  padding: 12px 28px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  background-color: #4f46e5;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  transition: background 0.2s, transform 0.2s;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.08);
-}
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #eef2f7, #ffffff);
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
 
-button:hover {
-  background-color: #3730a3;
-  transform: translateY(-2px) scale(1.03);
-}
-#modeSelect {
-  padding: 10px;
-  font-size: 16px;
-  border: 2px solid #007bff;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  color: #333;
-  margin: 10px 0;
-  outline: none;
-  transition: border-color 0.3s ease;
-}
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: #fff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+    }
 
-#modeSelect:focus {
-  border-color: #0056b3;
-  box-shadow: 0 0 5px rgba(0, 91, 187, 0.5);
-}
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #0b5394;
+      font-size: 1.6rem;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background-color: #f1f1f1;
+      transition: all 0.3s ease;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    #startBtn {
+      background-color: #0b5394;
+      color: white;
+      margin-top: 20px;
+    }
+
+    #startBtn:hover {
+      background-color: #084075;
+    }
+
+    #stopBtn {
+      background-color: #f44336;
+      color: white;
+    }
+
+    #stopBtn:hover {
+      background-color: #d32f2f;
+    }
+
+    .text-label {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .text-box {
+      border: 1px solid #dce3ed;
+      background: #f7f9fc;
+      border-radius: 12px;
+      padding: 15px;
+      min-height: 60px;
+      font-size: 1rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 1.4rem;
+      }
+    }
