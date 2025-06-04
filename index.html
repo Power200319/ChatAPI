@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <title>Realtime Voice Translator PWA</title>
-  <link rel="manifest" href="manifest.json" />
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="container">
-    <h2>🎙️ Realtime Voice Translator</h2>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Voice Translator</title>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
 
-    <select id="modeSelect">
-      <option value="en-km">English → Khmer</option>
-      <option value="km-en">Khmer → English</option>
-      <!-- <option value="km-zh">Khmer → Chinese</option>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h2>🎙️ Realtime Voice Translator</h2>
+
+      <select id="modeSelect">
+        <option value="en-km">English → Khmer</option>
+        <option value="km-en">Khmer → English</option>
+        <!-- <option value="km-zh">Khmer → Chinese</option>
       <option value="zh-km">Chinese → Khmer</option> -->
-    </select>
+      </select>
 
-    <div class="text-label">Input Text:</div>
-    <div id="sourceText" class="text-box"></div>
+      <div class="text-label">Input Text:</div>
+      <div id="sourceText" class="text-box"></div>
 
-    <div class="text-label">Translated Text:</div>
-    <div id="targetText" class="text-box"></div>
+      <div class="text-label">Translated Text:</div>
+      <div id="targetText" class="text-box"></div>
 
-    <button id="startBtn">🎙️ Start Listening</button>
-    <button id="stopBtn" disabled>⏹️ Stop Listening</button>
-  </div>
+      <button id="startBtn">🎙️ Start Listening</button>
+      <button id="stopBtn" disabled>⏹️ Stop Listening</button>
+    </div>
 
-  <script src="script.js"></script>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>
