@@ -1,11 +1,10 @@
 {
-  "name": "Realtime Voice Translator",
-  "short_name": "VoiceTranslator",
+  "name": "Voice Translator",
+  "short_name": "Translator",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#1976d2",
-  "description": "A realtime voice translator PWA English-Khmer",
+  "theme_color": "#4CAF50",
   "icons": [
     {
       "src": "icons/icon-192.png",
