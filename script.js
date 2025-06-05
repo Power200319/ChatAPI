@@ -116,36 +116,39 @@ function startListening() {
     alert("Speech recognition not supported");
     return;
   }
+
   recognition = new webkitSpeechRecognition();
   recognition.lang = fromLang.value;
   recognition.interimResults = false;
-  recognition.continuous = false;
+  recognition.continuous = true; // ⭐ Important for continuous listening
 
-  // Show “Loading…” while recognition starts
-  micBtn.textContent = '⏳ Loading...';
+  micBtn.textContent = '⏳ Listening...';
   micBtn.disabled = true;
   stopBtn.disabled = false;
 
   recognition.onresult = async (event) => {
-    const spoken = event.results[0][0].transcript;
-    sourceText.innerText = spoken;
-    await translateText();
-    micBtn.textContent = '🎙️ Start';
-    micBtn.disabled = false;
-    stopBtn.disabled = true;
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        transcript += event.results[i][0].transcript + ' ';
+      }
+    }
+
+    if (transcript.trim()) {
+      sourceText.innerText = transcript.trim();
+      await translateText();
+    }
   };
 
-  recognition.onerror = (err) => {
-    console.error("Recognition error:", err);
-    micBtn.textContent = '🎙️ Start';
-    micBtn.disabled = false;
-    stopBtn.disabled = true;
+  recognition.onerror = (event) => {
+    console.error('Recognition error:', event.error);
   };
 
   recognition.onend = () => {
-    micBtn.textContent = '🎙️ Start';
-    micBtn.disabled = false;
-    stopBtn.disabled = true;
+    // Restart listening unless stopped manually
+    if (!stopBtn.disabled) {
+      recognition.start();
+    }
   };
 
   recognition.start();
@@ -153,12 +156,15 @@ function startListening() {
 
 function stopListening() {
   if (recognition) {
+    recognition.onend = null;  // Prevent auto-restart
     recognition.stop();
   }
+
   micBtn.textContent = '🎙️ Start';
   micBtn.disabled = false;
   stopBtn.disabled = true;
 }
+
 
 // Wire up mic/stop buttons
 micBtn.addEventListener('click',  startListening);
