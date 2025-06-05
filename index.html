@@ -1,37 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Voice Translator</title>
-    <link rel="manifest" href="manifest.json" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Voice Translator</title>
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="header">
+    <h2>Voice Translator</h2>
+    <button id="darkModeBtn">🌓 Dark Mode</button>
+  </div>
 
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="container">
-      <h2>🎙️ Realtime Voice Translator</h2>
+  <div class="language-select">
+    <select id="fromLang"></select>
+    <select id="toLang"></select>
+  </div>
 
-      <select id="modeSelect">
-        <option value="en-km">English → Khmer</option>
-        <option value="km-en">Khmer → English</option>
-        <!-- <option value="km-zh">Khmer → Chinese</option>
-      <option value="zh-km">Chinese → Khmer</option> -->
-      </select>
+  <div class="textarea-box" id="sourceText" contenteditable="true" placeholder="Enter text..."></div>
+  <button id="pasteBtn" class="button">📋 Paste</button>
 
-      <div class="text-label">Input Text:</div>
-      <div id="sourceText" class="text-box"></div>
+  <div>
+    <button id="translateBtn" class="button">🌐 Translate</button>
+  </div>
 
-      <div class="text-label">Translated Text:</div>
-      <div id="targetText" class="text-box"></div>
+  <div>
+    <strong>Translated Text:</strong>
+    <div class="textarea-box" id="targetText"></div>
+  </div>
 
-      <button id="startBtn">🎙️ Start Listening</button>
-      <button id="stopBtn" disabled>⏹️ Stop Listening</button>
-    </div>
+  <div class="controls">
+    <button id="micBtn" class="mic-button">🎙️ Start</button>
+    <button id="stopBtn" class="mic-button" disabled>⏹️ Stop</button>
+  </div>
 
-    <script src="script.js"></script>
-  </body>
+  <button id="historyToggleBtn" class="button">📖 Show/Hide History</button>
+
+  <div class="history" id="historyContainer" style="display:none;">
+    <strong>History</strong>
+    <div id="historyList"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
 </html>

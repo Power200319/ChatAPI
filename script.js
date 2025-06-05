@@ -1,149 +1,124 @@
+const fromLang = document.getElementById("fromLang");
+const toLang = document.getElementById("toLang");
 const sourceText = document.getElementById("sourceText");
 const targetText = document.getElementById("targetText");
-const startBtn = document.getElementById("startBtn");
+const micBtn = document.getElementById("micBtn");
 const stopBtn = document.getElementById("stopBtn");
-const modeSelect = document.getElementById("modeSelect");
+const pasteBtn = document.getElementById("pasteBtn");
+const historyList = document.getElementById("historyList");
+const toggleDarkModeBtn = document.getElementById("darkModeBtn");
+const historyToggleBtn = document.getElementById("historyToggleBtn");
+const historyContainer = document.getElementById("historyContainer");
 
-let recognition;
-let isRunning = false;
-let khmerVoice = null;
-let englishVoice = null;
+const languageMap = {
+  English: "en",
+  Khmer: "km",
+  French: "fr",
+  Chinese: "zh-CN",
+  Japanese: "ja",
+  Spanish: "es",
+  German: "de",
+  Thai: "th",
+  Vietnamese: "vi",
+};
 
-if (!('webkitSpeechRecognition' in window)) {
-  alert("Your browser does not support Speech Recognition API. Please use Chrome.");
-} else {
-  recognition = new webkitSpeechRecognition();
+for (let [lang, code] of Object.entries(languageMap)) {
+  fromLang.innerHTML += `<option value="${code}">${lang}</option>`;
+  toLang.innerHTML += `<option value="${code}">${lang}</option>`;
 }
-
-recognition.continuous = true;
-recognition.interimResults = true;
-recognition.lang = "en-US";
-
-function loadVoices() {
-  return new Promise((resolve) => {
-    let voices = window.speechSynthesis.getVoices();
-    if (voices.length) {
-      resolve(voices);
-    } else {
-      window.speechSynthesis.onvoiceschanged = () => {
-        resolve(window.speechSynthesis.getVoices());
-      };
-    }
-  });
-}
-
-async function initVoices() {
-  const voices = await loadVoices();
-  khmerVoice = voices.find(v => v.lang === "km-KH") || null;
-  englishVoice = voices.find(v => v.lang.startsWith("en")) || null;
-}
-
-function getLangPair() {
-  switch (modeSelect.value) {
-    case "en-km": return { recog: "en-US", source: "en", target: "km", speakLang: "km-KH" };
-    case "km-en": return { recog: "km-KH", source: "km", target: "en", speakLang: "en-US" };
-    default: return { recog: "en-US", source: "en", target: "km", speakLang: "km-KH" };
-  }
-}
+fromLang.value = "en";
+toLang.value = "km";
 
 function speak(text, lang) {
-  if (window.speechSynthesis.speaking) {
-    window.speechSynthesis.cancel();
-  }
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = lang;
-  if (lang === "km-KH" && khmerVoice) utterance.voice = khmerVoice;
-  if (lang.startsWith("en") && englishVoice) utterance.voice = englishVoice;
-  utterance.rate = 1; // normal speed
-  window.speechSynthesis.speak(utterance);
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  utter.rate = 1.1;
+  speechSynthesis.cancel(); // Stop previous speech before speaking
+  speechSynthesis.speak(utter);
 }
 
-let debounceTimer;
-function translateAndSpeak(text) {
-  if (debounceTimer) clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    const { source, target, speakLang } = getLangPair();
-    fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(text)}`)
-      .then(res => res.json())
-      .then(data => {
-        const translated = data[0][0][0];
-        targetText.textContent = translated;
-        speak(translated, speakLang);
-      })
-      .catch(console.error);
-  }, 300);
+async function translateText(text, from, to) {
+  const response = await fetch(
+    `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(
+      text
+    )}`
+  );
+  const data = await response.json();
+  return data[0][0][0];
 }
 
-recognition.onresult = (event) => {
-  let interimTranscript = "";
-  let finalTranscript = "";
+function addToHistory(original, translated) {
+  const div = document.createElement("div");
+  div.className = "history-item";
+  div.innerHTML = `<strong>${original}</strong><br>${translated}<hr>`;
+  historyList.prepend(div);
+}
 
-  for (let i = event.resultIndex; i < event.results.length; i++) {
-    if (event.results[i].isFinal) {
-      finalTranscript += event.results[i][0].transcript;
-    } else {
-      interimTranscript += event.results[i][0].transcript;
-    }
+let recognition;
+
+function startVoice() {
+  if (!("webkitSpeechRecognition" in window)) {
+    alert("Speech recognition not supported");
+    return;
   }
 
-  sourceText.textContent = interimTranscript || finalTranscript;
+  recognition = new webkitSpeechRecognition();
+  recognition.lang = fromLang.value;
+  recognition.continuous = false;
+  recognition.interimResults = false;
 
-  if (finalTranscript) {
-    translateAndSpeak(finalTranscript);
-  }
-};
+  micBtn.innerText = "⏳ Loading...";
 
-recognition.onerror = (event) => {
-  console.error("Speech recognition error", event.error);
-};
+  recognition.onresult = async (event) => {
+    const text = event.results[0][0].transcript;
+    sourceText.innerText = text;
+    const translated = await translateText(text, fromLang.value, toLang.value);
+    targetText.innerText = translated;
+    speak(translated, toLang.value);
+    addToHistory(text, translated);
+    micBtn.innerText = "🎙️ Start Listening";
+  };
 
-recognition.onend = () => {
-  if (isRunning) {
-    recognition.start();
-  }
-};
+  recognition.onerror = (e) => {
+    console.error("Error: ", e);
+    micBtn.innerText = "🎙️ Start Listening";
+  };
 
-startBtn.onclick = () => {
-  if (!isRunning) {
-    const { recog } = getLangPair();
-    recognition.lang = recog;
-    recognition.start();
-    isRunning = true;
-    startBtn.disabled = true;
-    stopBtn.disabled = false;
-  }
+  recognition.onend = () => {
+    micBtn.disabled = false;
+    stopBtn.disabled = true;
+    micBtn.innerText = "🎙️ Start Listening";
+  };
+
+  recognition.start();
+}
+
+micBtn.onclick = () => {
+  startVoice();
+  micBtn.disabled = true;
+  stopBtn.disabled = false;
 };
 
 stopBtn.onclick = () => {
-  if (isRunning) {
-    recognition.stop();
-    isRunning = false;
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
-    window.speechSynthesis.cancel();
-    sourceText.textContent = "";
-    targetText.textContent = "";
-  }
+  recognition?.stop();
+  micBtn.disabled = false;
+  stopBtn.disabled = true;
+  micBtn.innerText = "🎙️ Start Listening";
 };
 
-modeSelect.onchange = () => {
-  if (isRunning) {
-    recognition.stop();
-    isRunning = false;
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
-    sourceText.textContent = "";
-    targetText.textContent = "";
-    window.speechSynthesis.cancel();
-  }
+pasteBtn.onclick = async () => {
+  const text = await navigator.clipboard.readText();
+  sourceText.innerText = text;
+  const translated = await translateText(text, fromLang.value, toLang.value);
+  targetText.innerText = translated;
+  speak(translated, toLang.value);
+  addToHistory(text, translated);
 };
 
-window.onload = () => {
-  initVoices();
+toggleDarkModeBtn.onclick = () => {
+  document.body.classList.toggle("dark-mode");
+};
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(() => console.log('Service Worker Registered'))
-      .catch(console.error);
-  }
+historyToggleBtn.onclick = () => {
+  historyContainer.classList.toggle("hidden");
 };
