@@ -1,51 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Voice Translator</title>
-  <meta name="theme-color" content="#ffffff" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="header">
-    <h2>Voice Translator</h2>
-    <button id="darkModeBtn">🌓 Dark Mode</button>
-  </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Voice Translator</title>
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="stylesheet" href="style.css" />
+    <!-- Android & PWA -->
+    <link rel="manifest" href="manifest.json" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="icons/AppImages/android/android-launchericon-192-192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="icons/AppImages/android/android-launchericon-512-512.png"
+    />
 
-  <div class="language-select">
-    <select id="fromLang"></select>
-    <select id="toLang"></select>
-  </div>
+    <!-- iOS -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="icons/AppImages/ios/180.png"
+    />
 
-  <div class="textarea-box" id="sourceText" contenteditable="true" placeholder="Enter text..."></div>
-  <button id="pasteBtn" class="button">📋 Paste</button>
+    <!-- Windows 11 -->
+    <meta name="msapplication-TileImage" content="icons/AppImages/windows11/" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+  </head>
+  <body>
+    <div class="header">
+      <h2>Voice Translator</h2>
+      <button id="darkModeBtn">🌓 Dark Mode</button>
+    </div>
 
-  <div>
-    <button id="translateBtn" class="button">🌐 Translate</button>
-  </div>
+    <div class="language-select">
+      <select id="fromLang"></select>
+      <select id="toLang"></select>
+    </div>
 
-  <div>
-    <strong>Translated Text:</strong>
-    <div class="textarea-box" id="targetText"></div>
-  </div>
+    <div
+      class="textarea-box"
+      id="sourceText"
+      contenteditable="true"
+      placeholder="Enter text..."
+    ></div>
+    <button id="pasteBtn" class="button">📋 Paste</button>
 
-  <div class="controls">
-    <button id="micBtn" class="mic-button">🎙️ Start</button>
-    <button id="stopBtn" class="mic-button" disabled>⏹️ Stop</button>
-  </div>
+    <div>
+      <button id="translateBtn" class="button">🌐 Translate</button>
+    </div>
 
-  <button id="historyToggleBtn" class="button">📖 Show/Hide History</button>
+    <div>
+      <strong>Translated Text:</strong>
+      <div class="textarea-box" id="targetText"></div>
+    </div>
 
-  <div class="history" id="historyContainer" style="display:none;">
-    <strong>History</strong>
-    <div id="historyList"></div>
-  </div>
+    <div class="controls">
+      <button id="micBtn" class="mic-button">🎙️ Start</button>
+      <button id="stopBtn" class="mic-button" disabled>⏹️ Stop</button>
+    </div>
 
-  <script src="script.js"></script>
-</body>
+    <button id="historyToggleBtn" class="button">📖 Show/Hide History</button>
+
+    <div class="history" id="historyContainer" style="display: none">
+      <strong>History</strong>
+      <div id="historyList"></div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
 </html>
